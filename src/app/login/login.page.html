@@ -1,0 +1,29 @@
+<ion-content class="ion-padding">
+  <div style="text-align: center; margin-top: 30%;">
+    <h1>🐾 VetCtrl</h1>
+    <p>Inicia sesión para gestionar tus mascotas</p>
+  </div>
+
+  <ion-item>
+    <ion-label position="floating">Usuario o Email</ion-label>
+    <ion-input [(ngModel)]="username" type="text"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Contraseña</ion-label>
+    <ion-input [(ngModel)]="password" type="password"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" (click)="login()" [disabled]="isLoading" class="ion-margin-top">
+    <ion-spinner *ngIf="isLoading" name="crescent" slot="start"></ion-spinner>
+    {{ isLoading ? 'Iniciando...' : 'Iniciar Sesión' }}
+  </ion-button>
+
+  <ion-button expand="block" fill="outline" color="primary" (click)="irARegistro()" class="ion-margin-top">
+    Crear cuenta nueva
+  </ion-button>
+
+  <ion-text *ngIf="errorMessage" color="danger">
+    <p style="text-align: center; margin-top: 10px;">{{ errorMessage }}</p>
+  </ion-text>
+</ion-content>

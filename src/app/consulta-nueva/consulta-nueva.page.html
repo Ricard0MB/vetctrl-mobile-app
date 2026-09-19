@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Consulta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <div *ngIf="isLoadingPet" style="text-align: center; margin-top: 40px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando paciente...</p>
+  </div>
+
+  <div *ngIf="!isLoadingPet && petData">
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title>Paciente: {{ petData.name }}</ion-card-title>
+        <ion-card-subtitle>{{ petData.species_name }} | {{ petData.breed_name || 'N/D' }}</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Fecha y hora *</ion-label>
+          <ion-input type="datetime-local" [(ngModel)]="consultationDate"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Motivo</ion-label>
+          <ion-input type="text" [(ngModel)]="reason" placeholder="Ej: Control, Vacunación"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Diagnóstico *</ion-label>
+          <ion-textarea [(ngModel)]="diagnosis" rows="3" placeholder="Diagnóstico clínico"></ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Tratamiento</ion-label>
+          <ion-textarea [(ngModel)]="treatment" rows="3" placeholder="Tratamiento indicado"></ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Notas</ion-label>
+          <ion-textarea [(ngModel)]="notes" rows="2" placeholder="Notas adicionales"></ion-textarea>
+        </ion-item>
+
+        <ion-button expand="block" class="ion-margin-top" (click)="guardar()" [disabled]="isSaving">
+          <ion-spinner *ngIf="isSaving" name="crescent" slot="start"></ion-spinner>
+          {{ isSaving ? 'Guardando...' : 'Guardar Consulta' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

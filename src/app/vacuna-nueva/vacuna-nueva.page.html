@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Vacuna</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <div *ngIf="isLoadingPet" style="text-align: center; margin-top: 40px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando paciente...</p>
+  </div>
+
+  <div *ngIf="!isLoadingPet && petData">
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title>Paciente: {{ petData.name }}</ion-card-title>
+        <ion-card-subtitle>{{ petData.species_name }} | {{ petData.breed_name || 'N/D' }}</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Tipo de vacuna *</ion-label>
+          <ion-select [(ngModel)]="vaccineTypeId" placeholder="Selecciona una vacuna">
+            <ion-select-option *ngFor="let vt of vaccineTypes" [value]="vt.id">
+              {{ vt.name }} ({{ vt.species_target }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Fecha de aplicación *</ion-label>
+          <ion-input type="date" [(ngModel)]="applicationDate"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Próxima dosis (opcional)</ion-label>
+          <ion-input type="date" [(ngModel)]="nextDueDate"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Número de lote</ion-label>
+          <ion-input type="text" [(ngModel)]="loteNumber" placeholder="Ej: LOT-2026-001"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Notas</ion-label>
+          <ion-textarea [(ngModel)]="notes" rows="2"></ion-textarea>
+        </ion-item>
+
+        <ion-button expand="block" class="ion-margin-top" (click)="guardar()" [disabled]="isSaving">
+          <ion-spinner *ngIf="isSaving" name="crescent" slot="start"></ion-spinner>
+          {{ isSaving ? 'Guardando...' : 'Registrar Vacuna' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

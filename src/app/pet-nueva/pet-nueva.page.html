@@ -1,0 +1,74 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Mascota</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <ion-card>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Nombre *</ion-label>
+        <ion-input type="text" [(ngModel)]="name" placeholder="Ej: Firulais" maxlength="50"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Especie *</ion-label>
+        <ion-select [(ngModel)]="typeId" placeholder="Selecciona una especie" (ionChange)="filtrarRazas()">
+          <ion-select-option *ngFor="let t of petTypes" [value]="t.id">
+            {{ t.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Raza</ion-label>
+        <ion-select [(ngModel)]="breedId" placeholder="Sin raza">
+          <ion-select-option value="">-- Sin raza --</ion-select-option>
+          <ion-select-option *ngFor="let b of filteredBreeds" [value]="b.id">
+            {{ b.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Género</ion-label>
+        <ion-select [(ngModel)]="gender" placeholder="Selecciona">
+          <ion-select-option value="Macho">Macho</ion-select-option>
+          <ion-select-option value="Hembra">Hembra</ion-select-option>
+          <ion-select-option value="N/D">N/D</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Fecha de nacimiento</ion-label>
+        <ion-input type="date" [(ngModel)]="dateOfBirth"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Historial médico</ion-label>
+        <ion-textarea [(ngModel)]="medicalHistory" rows="3" placeholder="Observaciones, alergias, etc."></ion-textarea>
+      </ion-item>
+
+      <!-- Selector de dueño (solo visible para admin/vet) -->
+      <ion-item *ngIf="isAdminOrVet()">
+        <ion-label position="stacked">Dueño *</ion-label>
+        <ion-select [(ngModel)]="ownerId" placeholder="Selecciona un propietario">
+          <ion-select-option *ngFor="let o of owners" [value]="o.id">
+            {{ o.username }} ({{ o.email }})
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button expand="block" class="ion-margin-top" (click)="guardar()" [disabled]="isSaving">
+        <ion-spinner *ngIf="isSaving" name="crescent" slot="start"></ion-spinner>
+        {{ isSaving ? 'Guardando...' : 'Registrar Mascota' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

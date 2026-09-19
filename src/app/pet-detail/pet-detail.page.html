@@ -1,0 +1,216 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ficha Clínica</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Spinner de carga -->
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando información médica...</p>
+  </div>
+
+  <!-- Contenido de la Ficha Clínica -->
+  <div *ngIf="!isLoading && petData" style="padding: 10px;">
+
+    <!-- Tarjeta Principal de Información -->
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.6rem; font-weight: bold; color: var(--ion-color-primary);">
+          {{ petData.pet.name }}
+        </ion-card-title>
+        <ion-card-subtitle>
+          {{ petData.pet.species_name || 'Sin especie' }} | {{ petData.pet.breed_name || 'Raza no especificada' }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Género:</strong> {{ petData.pet.gender || 'N/D' }}</p>
+        <p><strong>Fecha de Nacimiento:</strong> {{ petData.pet.date_of_birth || 'N/D' }}</p>
+        <p *ngIf="petData.pet.owner_name"><strong>Dueño:</strong> {{ petData.pet.owner_name }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Historial Médico -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.2rem;">
+          <ion-icon name="journal-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+          Historial Médico
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p *ngIf="petData.pet.medical_history; else sinHistorial" style="white-space: pre-wrap;">
+          {{ petData.pet.medical_history }}
+        </p>
+        <ng-template #sinHistorial>
+          <p color="medium">No hay registros médicos asentados para esta mascota.</p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Consultas Médicas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.2rem;">
+          <ion-icon name="pulse-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+          Consultas ({{ petData.consultations?.length || 0 }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button 
+          *ngIf="canEdit()" 
+          expand="block" 
+          fill="outline" 
+          (click)="nuevaConsulta()" 
+          class="ion-margin-bottom">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Nueva Consulta
+        </ion-button>
+
+        <ion-list lines="full" *ngIf="petData.consultations?.length; else sinConsultas">
+          <ion-item *ngFor="let consulta of petData.consultations">
+            <ion-label>
+              <h2><strong>Fecha:</strong> {{ formatDate(consulta.consultation_date) }}</h2>
+              <p *ngIf="consulta.reason"><strong>Motivo:</strong> {{ consulta.reason }}</p>
+              <p><strong>Diagnóstico:</strong> {{ consulta.diagnosis || 'Sin diagnóstico registrado' }}</p>
+              <p *ngIf="consulta.treatment"><strong>Tratamiento:</strong> {{ consulta.treatment }}</p>
+              <p *ngIf="consulta.notes"><strong>Notas:</strong> {{ consulta.notes }}</p>
+              <p *ngIf="consulta.vet_name"><small>Atendido por: {{ consulta.vet_name }}</small></p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        <ng-template #sinConsultas>
+          <p color="medium">No hay consultas registradas para esta mascota.</p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tratamientos -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.2rem;">
+          <ion-icon name="bandage-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+          Tratamientos ({{ petData.treatments?.length || 0 }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button 
+          *ngIf="canEdit()" 
+          expand="block" 
+          fill="outline" 
+          (click)="nuevoTratamiento()" 
+          class="ion-margin-bottom">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Nuevo Tratamiento
+        </ion-button>
+
+        <ion-list lines="full" *ngIf="petData.treatments?.length; else sinTratamientos">
+          <ion-item *ngFor="let tratamiento of petData.treatments">
+            <ion-label>
+              <h2><strong>{{ tratamiento.title || 'Sin título' }}</strong></h2>
+              <p *ngIf="tratamiento.diagnosis"><strong>Diagnóstico:</strong> {{ tratamiento.diagnosis }}</p>
+              <p *ngIf="tratamiento.start_date"><strong>Inicio:</strong> {{ formatDate(tratamiento.start_date) }}</p>
+              <p *ngIf="tratamiento.end_date"><strong>Fin:</strong> {{ formatDate(tratamiento.end_date) }}</p>
+              <p *ngIf="tratamiento.status"><strong>Estado:</strong> {{ tratamiento.status }}</p>
+            </ion-label>
+            <ion-badge 
+              slot="end" 
+              [color]="tratamiento.status === 'Finalizado' ? 'success' : (tratamiento.status === 'Pausado' ? 'warning' : 'primary')">
+              {{ tratamiento.status }}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+        <ng-template #sinTratamientos>
+          <p color="medium">No hay tratamientos registrados.</p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Citas Médicas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.2rem;">
+          <ion-icon name="calendar-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+          Citas Programadas ({{ petData.appointments?.length || 0 }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button 
+          *ngIf="canEdit()" 
+          expand="block" 
+          fill="outline" 
+          (click)="nuevaCita()" 
+          class="ion-margin-bottom">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Agendar Cita
+        </ion-button>
+
+        <ion-list lines="full" *ngIf="petData.appointments?.length; else sinCitas">
+          <ion-item *ngFor="let cita of petData.appointments">
+            <ion-label>
+              <h2>{{ formatDate(cita.appointment_date) }}</h2>
+              <p>{{ cita.reason || 'Sin motivo especificado' }}</p>
+              <p *ngIf="cita.vet_name"><small>Atendido por: {{ cita.vet_name }}</small></p>
+            </ion-label>
+            <ion-badge 
+              slot="end" 
+              [color]="cita.status === 'COMPLETADA' ? 'success' : (cita.status === 'CANCELADA' ? 'danger' : 'warning')">
+              {{ cita.status }}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+        <ng-template #sinCitas>
+          <p color="medium">No hay citas registradas.</p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Vacunas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title style="font-size: 1.2rem;">
+          <ion-icon name="medkit-outline" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+          Vacunas Aplicadas ({{ petData.vaccines?.length || 0 }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button 
+          *ngIf="canEdit()" 
+          expand="block" 
+          fill="outline" 
+          (click)="aplicarVacuna()" 
+          class="ion-margin-bottom">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Aplicar Vacuna
+        </ion-button>
+
+        <ion-list lines="full" *ngIf="petData.vaccines?.length; else sinVacunas">
+          <ion-item *ngFor="let vacuna of petData.vaccines">
+            <ion-label>
+              <h2>{{ vacuna.vaccine_name || 'Dosis de Vacuna' }}</h2>
+              <p>Aplicada el: {{ formatDate(vacuna.application_date) }}</p>
+              <p *ngIf="vacuna.next_due_date"><strong>Próxima dosis:</strong> {{ formatDate(vacuna.next_due_date) }}</p>
+              <p *ngIf="vacuna.lote_number"><small>Lote: {{ vacuna.lote_number }}</small></p>
+            </ion-label>
+            <ion-icon name="checkmark-circle" color="success" slot="end"></ion-icon>
+          </ion-item>
+        </ion-list>
+        <ng-template #sinVacunas>
+          <p color="medium">No hay vacunas registradas en el expediente.</p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <!-- Mensaje de Error -->
+  <div *ngIf="!isLoading && !petData" style="text-align: center; margin-top: 50px;">
+    <p>No se encontró información para esta mascota.</p>
+    <ion-button fill="outline" (click)="volver()">Volver</ion-button>
+  </div>
+
+</ion-content>

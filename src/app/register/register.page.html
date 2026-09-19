@@ -1,0 +1,48 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crear Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+    <h1>🐾 VetCtrl</h1>
+    <p>Regístrate para gestionar tus mascotas</p>
+  </div>
+
+  <ion-item>
+    <ion-label position="floating">Usuario *</ion-label>
+    <ion-input [(ngModel)]="username" type="text" placeholder="Solo letras, números y _"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Email *</ion-label>
+    <ion-input [(ngModel)]="email" type="email"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Contraseña *</ion-label>
+    <ion-input [(ngModel)]="password" type="password" placeholder="Mínimo 6 caracteres"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Confirmar Contraseña *</ion-label>
+    <ion-input [(ngModel)]="confirmPassword" type="password"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" (click)="registrar()" [disabled]="isLoading" class="ion-margin-top">
+    <ion-spinner *ngIf="isLoading" name="crescent" slot="start"></ion-spinner>
+    {{ isLoading ? 'Registrando...' : 'Crear Cuenta' }}
+  </ion-button>
+
+  <ion-text *ngIf="errorMessage" color="danger">
+    <p style="text-align: center; margin-top: 15px;">{{ errorMessage }}</p>
+  </ion-text>
+
+  <ion-text *ngIf="successMessage" color="success">
+    <p style="text-align: center; margin-top: 15px;">{{ successMessage }}</p>
+  </ion-text>
+</ion-content>

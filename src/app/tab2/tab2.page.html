@@ -1,0 +1,52 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Mis Mascotas</ion-title>
+    <ion-buttons slot="end">
+  <ion-button (click)="confirmarLogout()">
+    <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+  </ion-button>
+</ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Mis Mascotas</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando tus mascotas...</p>
+  </div>
+
+  <!-- Lista de Mascotas -->
+  <ion-list *ngIf="!isLoading">
+    <ion-item *ngFor="let mascota of listaMascotas" [routerLink]="['/pet-detail', mascota.id]" button detail>
+      <ion-avatar slot="start">
+        <ion-icon [name]="mascota.type_name === 'Perro' ? 'paw' : 'fish'" style="font-size: 2rem;"></ion-icon>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ mascota.name }}</h2>
+        <p>{{ mascota.type_name }} - {{ mascota.breed_name || 'Sin raza' }}</p>
+        <p style="font-size: 0.8rem;">Cédula del dueño: {{ mascota.owner_id }}</p>
+      </ion-label>
+      <ion-badge color="primary" slot="end">{{ mascota.gender || 'N/D' }}</ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <!-- Mensaje si no hay mascotas -->
+  <ion-text *ngIf="!isLoading && listaMascotas.length === 0" color="medium">
+    <p style="text-align: center; margin-top: 20px;">Aún no tienes mascotas registradas en el sistema.</p>
+  </ion-text>
+
+  <!-- Botón Flotante para Agregar Nueva Mascota -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openAddPetModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

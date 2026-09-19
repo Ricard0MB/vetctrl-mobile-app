@@ -1,0 +1,54 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Agendar Cita</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Solicitud de Cita Veterinaria</ion-card-title>
+      <ion-card-subtitle>Selecciona los datos para la consulta</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Mascota</ion-label>
+        <ion-select [(ngModel)]="selectedPetId" placeholder="Selecciona una mascota">
+          <ion-select-option *ngFor="let pet of listaMascotas" [value]="pet.id">
+            {{ pet.name }} ({{ pet.type_name }})
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="ion-margin-top">
+        <ion-label position="stacked">Motivo de la consulta</ion-label>
+        <ion-input 
+          type="text" 
+          [(ngModel)]="motivoConsulta" 
+          placeholder="Ej: Control de rutina, Vacunación, Emergencia">
+        </ion-input>
+      </ion-item>
+
+      <div class="ion-margin-top">
+        <ion-label color="medium" style="display: block; margin-bottom: 8px;">Fecha preferida</ion-label>
+        <ion-datetime [(ngModel)]="fechaPreferida" presentation="date"></ion-datetime>
+      </div>
+
+      <ion-item class="ion-margin-top">
+        <ion-label position="stacked">Hora (formato 24h)</ion-label>
+        <ion-input 
+          type="time" 
+          [(ngModel)]="horaPreferida" 
+          placeholder="10:00">
+        </ion-input>
+      </ion-item>
+
+      <ion-button expand="block" class="ion-margin-top" (click)="agendarCita()">
+        Confirmar Cita
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
