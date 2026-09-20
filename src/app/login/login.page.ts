@@ -13,11 +13,16 @@ export class LoginPage {
   password: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
+  showPassword: boolean = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   login() {
     if (!this.username || !this.password) {

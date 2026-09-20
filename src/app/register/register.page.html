@@ -25,12 +25,39 @@
 
   <ion-item>
     <ion-label position="floating">Contraseña *</ion-label>
-    <ion-input [(ngModel)]="password" type="password" placeholder="Mínimo 6 caracteres"></ion-input>
+    <ion-input 
+      [(ngModel)]="password" 
+      [type]="showPassword ? 'text' : 'password'"
+      placeholder="Mínimo 6 caracteres">
+    </ion-input>
+    <ion-button 
+      slot="end" 
+      fill="clear" 
+      (click)="togglePassword()" 
+      size="small">
+      <ion-icon 
+        slot="icon-only" 
+        [name]="showPassword ? 'eye-off-outline' : 'eye-outline'">
+      </ion-icon>
+    </ion-button>
   </ion-item>
 
   <ion-item>
     <ion-label position="floating">Confirmar Contraseña *</ion-label>
-    <ion-input [(ngModel)]="confirmPassword" type="password"></ion-input>
+    <ion-input 
+      [(ngModel)]="confirmPassword" 
+      [type]="showConfirmPassword ? 'text' : 'password'">
+    </ion-input>
+    <ion-button 
+      slot="end" 
+      fill="clear" 
+      (click)="toggleConfirmPassword()" 
+      size="small">
+      <ion-icon 
+        slot="icon-only" 
+        [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'">
+      </ion-icon>
+    </ion-button>
   </ion-item>
 
   <ion-button expand="block" (click)="registrar()" [disabled]="isLoading" class="ion-margin-top">
