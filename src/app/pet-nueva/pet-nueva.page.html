@@ -58,7 +58,6 @@
         <ion-textarea [(ngModel)]="medicalHistory" rows="3" placeholder="Observaciones, alergias, etc."></ion-textarea>
       </ion-item>
 
-      <!-- Selector de dueño (solo visible para admin/vet) -->
       <ion-item *ngIf="isAdminOrVet()">
         <ion-label position="stacked">Dueño *</ion-label>
         <ion-select [(ngModel)]="ownerId" placeholder="Selecciona un propietario">

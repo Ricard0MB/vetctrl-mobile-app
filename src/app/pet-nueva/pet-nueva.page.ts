@@ -1,78 +1,183 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Nueva Mascota</ion-title>
-  </ion-toolbar>
-</ion-header>
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastController, LoadingController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
+import { PetsService } from '../services/pets.service';
+import { AuthService } from '../services/auth.service';
 
-<ion-content [fullscreen]="true" class="ion-padding">
+@Component({
+  selector: 'app-pet-nueva',
+  templateUrl: './pet-nueva.page.html',
+  styleUrls: ['./pet-nueva.page.scss'],
+  standalone: false
+})
+export class PetNuevaPage implements OnInit {
 
-  <ion-card>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="stacked">Nombre *</ion-label>
-        <ion-input type="text" [(ngModel)]="name" placeholder="Ej: Firulais" maxlength="50"></ion-input>
-      </ion-item>
+  name: string = '';
+  typeId: number | null = null;
+  breedId: number | '' = '';
+  gender: string = '';
+  dateOfBirth: string = '';
+  medicalHistory: string = '';
+  ownerId: number | null = null;
 
-      <ion-item>
-        <ion-label position="stacked">Especie *</ion-label>
-        <ion-select [(ngModel)]="typeId" placeholder="Selecciona una especie" (ionChange)="filtrarRazas()">
-          <ion-select-option *ngFor="let t of petTypes" [value]="t.id">
-            {{ t.name }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+  petTypes: any[] = [];
+  breeds: any[] = [];
+  filteredBreeds: any[] = [];
+  owners: any[] = [];
 
-      <ion-item>
-        <ion-label position="stacked">Raza</ion-label>
-        <ion-select [(ngModel)]="breedId" placeholder="Sin raza">
-          <ion-select-option value="">-- Sin raza --</ion-select-option>
-          <ion-select-option *ngFor="let b of filteredBreeds" [value]="b.id">
-            {{ b.name }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+  isLoading: boolean = true;
+  isSaving: boolean = false;
 
-      <ion-item>
-        <ion-label position="stacked">Género</ion-label>
-        <ion-select [(ngModel)]="gender" placeholder="Selecciona">
-          <ion-select-option value="Macho">Macho</ion-select-option>
-          <ion-select-option value="Hembra">Hembra</ion-select-option>
-          <ion-select-option value="N/D">N/D</ion-select-option>
-        </ion-select>
-      </ion-item>
+  maxDate: string = new Date().toISOString().split('T')[0];
 
-      <ion-item>
-        <ion-label position="stacked">Fecha de nacimiento</ion-label>
-        <ion-input
-          type="date"
-          [(ngModel)]="dateOfBirth"
-          [max]="maxDate">
-        </ion-input>
-      </ion-item>
+  private apiBaseUrl = 'https://vetctrl.onrender.com/api/index.php';
 
-      <ion-item>
-        <ion-label position="stacked">Historial médico</ion-label>
-        <ion-textarea [(ngModel)]="medicalHistory" rows="3" placeholder="Observaciones, alergias, etc."></ion-textarea>
-      </ion-item>
+  constructor(
+    private http: HttpClient,
+    private petsService: PetsService,
+    private authService: AuthService,
+    private router: Router,
+    private toastController: ToastController,
+    private loadingController: LoadingController
+  ) {}
 
-      <!-- Selector de dueño (solo visible para admin/vet) -->
-      <ion-item *ngIf="isAdminOrVet()">
-        <ion-label position="stacked">Dueño *</ion-label>
-        <ion-select [(ngModel)]="ownerId" placeholder="Selecciona un propietario">
-          <ion-select-option *ngFor="let o of owners" [value]="o.id">
-            {{ o.username }} ({{ o.email }})
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+  ngOnInit() {
+    this.cargarCatalogos();
+    this.cargarOwners();
+  }
 
-      <ion-button expand="block" class="ion-margin-top" (click)="guardar()" [disabled]="isSaving">
-        <ion-spinner *ngIf="isSaving" name="crescent" slot="start"></ion-spinner>
-        {{ isSaving ? 'Guardando...' : 'Registrar Mascota' }}
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+  isAdminOrVet(): boolean {
+    const user = this.authService.getCurrentUser();
+    return !!user && (user.role_name === 'admin' || user.role_name === 'Veterinario');
+  }
 
-</ion-content>
+  cargarCatalogos() {
+    this.isLoading = true;
+    this.http.get('https://vetctrl.onrender.com/api/get_catalogs.php').subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.petTypes = res.data.pet_types || [];
+          this.breeds = res.data.breeds || [];
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar catálogos:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  cargarOwners() {
+    if (!this.isAdminOrVet()) return;
+
+    this.http.get(`${this.apiBaseUrl}?resource=owners`, {
+      headers: this.authService.getAuthHeaders()
+    }).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.owners = res.data || [];
+        }
+      },
+      error: (err) => console.error('Error al cargar propietarios:', err)
+    });
+  }
+
+  filtrarRazas() {
+    this.breedId = '';
+    if (!this.typeId) {
+      this.filteredBreeds = [];
+      return;
+    }
+    this.filteredBreeds = this.breeds.filter(b => b.type_id === this.typeId);
+  }
+
+  async guardar() {
+    if (!this.name.trim()) {
+      this.mostrarToast('El nombre es obligatorio', 'warning');
+      return;
+    }
+    if (!this.typeId) {
+      this.mostrarToast('Selecciona una especie', 'warning');
+      return;
+    }
+    if (this.isAdminOrVet() && !this.ownerId) {
+      this.mostrarToast('Selecciona un dueño', 'warning');
+      return;
+    }
+
+    if (this.dateOfBirth) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(this.dateOfBirth);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate > today) {
+        this.mostrarToast('La fecha de nacimiento no puede ser futura', 'warning');
+        return;
+      }
+
+      const maxAge = 100;
+      const oldestDate = new Date();
+      oldestDate.setFullYear(oldestDate.getFullYear() - maxAge);
+      if (selectedDate < oldestDate) {
+        this.mostrarToast(`La edad no puede ser mayor a ${maxAge} años`, 'warning');
+        return;
+      }
+    }
+
+    const loader = await this.loadingController.create({ message: 'Guardando mascota...' });
+    await loader.present();
+    this.isSaving = true;
+
+    const user = this.authService.getCurrentUser();
+    const finalOwnerId = this.isAdminOrVet() ? this.ownerId : (user ? user.id : null);
+
+    const payload: any = {
+      name: this.name.trim(),
+      type_id: this.typeId,
+      owner_id: finalOwnerId,
+    };
+
+    if (this.breedId) payload.breed_id = this.breedId;
+    if (this.gender) payload.gender = this.gender;
+    if (this.dateOfBirth) payload.date_of_birth = this.dateOfBirth;
+    if (this.medicalHistory.trim()) payload.medical_history = this.medicalHistory.trim();
+
+    console.log('📤 Enviando mascota:', payload);
+
+    this.petsService.addPet(payload).subscribe({
+      next: async (res: any) => {
+        await loader.dismiss();
+        this.isSaving = false;
+        if (res.success) {
+          const toast = await this.toastController.create({
+            message: 'Mascota registrada correctamente',
+            duration: 2500,
+            color: 'success'
+          });
+          await toast.present();
+          this.router.navigate(['/tabs/tab2']);
+        } else {
+          this.mostrarToast(res.message || 'Error al guardar', 'danger');
+        }
+      },
+      error: async (err: any) => {
+        await loader.dismiss();
+        this.isSaving = false;
+        console.error('❌ Error al guardar:', err);
+        this.mostrarToast(err.error?.message || 'Error de conexión', 'danger');
+      }
+    });
+  }
+
+  private async mostrarToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color
+    });
+    await toast.present();
+  }
+}
