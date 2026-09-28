@@ -20,12 +20,18 @@
     <!-- Tarjeta Principal de Información -->
     <ion-card color="light">
       <ion-card-header>
-        <ion-card-title style="font-size: 1.6rem; font-weight: bold; color: var(--ion-color-primary);">
-          {{ petData.pet.name }}
-        </ion-card-title>
-        <ion-card-subtitle>
-          {{ petData.pet.species_name || 'Sin especie' }} | {{ petData.pet.breed_name || 'Raza no especificada' }}
-        </ion-card-subtitle>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i [class]="getSpeciesIcon(petData.pet.species_name)"
+             style="font-size: 2.5rem; color: var(--ion-color-primary);"></i>
+          <div>
+            <ion-card-title style="font-size: 1.6rem; font-weight: bold; color: var(--ion-color-primary);">
+              {{ petData.pet.name }}
+            </ion-card-title>
+            <ion-card-subtitle>
+              {{ petData.pet.species_name || 'Sin especie' }} | {{ petData.pet.breed_name || 'Raza no especificada' }}
+            </ion-card-subtitle>
+          </div>
+        </div>
       </ion-card-header>
       <ion-card-content>
         <p><strong>Género:</strong> {{ petData.pet.gender || 'N/D' }}</p>

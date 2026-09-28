@@ -56,9 +56,9 @@ export class PetsService {
 
   // Buscar mascotas
   searchPets(query: string): Observable<any> {
-    return this.http.get(
-      `${this.apiBaseUrl}?resource=pets&q=${encodeURIComponent(query)}`,
-      { headers: this.authService.getAuthHeaders() }
-    );
-  }
+  return this.http.get(
+    `${this.apiBaseUrl}?resource=pets&id=search&q=${encodeURIComponent(query)}`,
+    { headers: this.authService.getAuthHeaders() }
+  );
+}
 }

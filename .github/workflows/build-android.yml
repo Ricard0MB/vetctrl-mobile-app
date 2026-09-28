@@ -1,0 +1,2 @@
+cd C:\Users\USER\Desktop\vetctrl-mobile-app-main
+New-Item -ItemType Directory -Force -Path "assets"

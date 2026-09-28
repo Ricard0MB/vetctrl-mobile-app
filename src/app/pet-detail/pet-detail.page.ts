@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PetsService } from '../services/pets.service';
 import { AuthService } from '../services/auth.service';
+import { SpeciesIconsService } from '../services/species-icons.service';
 
 @Component({
   selector: 'app-pet-detail',
@@ -19,7 +20,8 @@ export class PetDetailPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private petsService: PetsService,
-    public authService: AuthService
+    public authService: AuthService,
+    private speciesIcons: SpeciesIconsService
   ) { }
 
   ngOnInit() {
@@ -29,7 +31,6 @@ export class PetDetailPage implements OnInit {
     });
   }
 
-  // Se ejecuta cada vez que entras a la pantalla (útil para refrescar tras crear algo)
   ionViewWillEnter() {
     if (this.petId > 0) {
       this.cargarDetalle();
@@ -43,8 +44,6 @@ export class PetDetailPage implements OnInit {
         console.log('Detalle de mascota:', respuesta);
         if (respuesta.success) {
           this.petData = respuesta.data;
-        } else {
-          console.error('Error del servidor:', respuesta.message);
         }
         this.isLoading = false;
       },
@@ -55,13 +54,15 @@ export class PetDetailPage implements OnInit {
     });
   }
 
-  // Verifica si el usuario puede crear consultas, vacunas, etc.
   canEdit(): boolean {
     const user = this.authService.getCurrentUser();
     return !!user && (user.role_name === 'Veterinario' || user.role_name === 'admin');
   }
 
-  // Navegación a pantallas de creación
+  getSpeciesIcon(speciesName: string | undefined | null): string {
+    return this.speciesIcons.getSpeciesIcon(speciesName);
+  }
+
   nuevaConsulta() {
     if (!this.canEdit()) return;
     this.router.navigate(['/consulta-nueva', this.petId]);
@@ -86,7 +87,6 @@ export class PetDetailPage implements OnInit {
     this.router.navigate(['/tabs/tab2']);
   }
 
-  // Formato de fecha
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);

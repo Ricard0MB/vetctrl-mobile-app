@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PetsService } from '../services/pets.service';
 import { AuthService } from '../services/auth.service';
+import { SpeciesIconsService } from '../services/species-icons.service';
 
 @Component({
   selector: 'app-tab2',
@@ -15,23 +17,40 @@ export class Tab2Page implements OnInit {
   listaMascotas: any[] = [];
   isLoading: boolean = true;
 
+  searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   constructor(
     private petsService: PetsService,
     private router: Router,
     private authService: AuthService,
-    private alertController: AlertController   // ← nuevo
+    private alertController: AlertController,
+    private speciesIcons: SpeciesIconsService
   ) {}
 
   ngOnInit() {
     console.log('Tab2: ngOnInit');
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.cargarMascotas(term);
+    });
   }
 
   ionViewWillEnter() {
     console.log('Tab2: ionViewWillEnter - recargando datos');
-    this.cargarMascotas();
+    this.cargarMascotas(this.searchTerm);
   }
 
-  cargarMascotas() {
+  onSearchChange(event: any) {
+    const term = event.detail.value || '';
+    this.searchTerm = term;
+    this.searchSubject.next(term);
+  }
+
+  cargarMascotas(search: string = '') {
     this.isLoading = true;
     const user = this.authService.getCurrentUser();
 
@@ -41,23 +60,32 @@ export class Tab2Page implements OnInit {
       return;
     }
 
-    const obs = user.role_name === 'Propietario'
-      ? this.petsService.getPetsByOwner(user.id)
-      : this.petsService.getPets();
+    const obs = search.trim().length > 0
+      ? this.petsService.searchPets(search.trim())
+      : (user.role_name === 'Propietario'
+          ? this.petsService.getPetsByOwner(user.id)
+          : this.petsService.getPets());
 
     obs.subscribe({
       next: (respuesta: any) => {
         console.log('🟢 Datos recibidos:', respuesta);
         if (respuesta.success) {
-          this.listaMascotas = respuesta.data.pets || respuesta.data || [];
+          const data = respuesta.data;
+          this.listaMascotas = Array.isArray(data)
+            ? data
+            : (data?.pets || []);
         }
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('🔴 Error de conexión:', error);
         this.isLoading = false;
       }
     });
+  }
+
+  getSpeciesIcon(speciesName: string | undefined | null): string {
+    return this.speciesIcons.getSpeciesIcon(speciesName);
   }
 
   goToDetail(petId: number) {
@@ -68,18 +96,12 @@ export class Tab2Page implements OnInit {
     this.router.navigate(['/pet-nueva']);
   }
 
-  // ==========================================
-  // LOGOUT con confirmación
-  // ==========================================
   async confirmarLogout() {
     const alert = await this.alertController.create({
       header: 'Cerrar Sesión',
       message: '¿Estás seguro de que quieres cerrar sesión?',
       buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
+        { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Sí, salir',
           role: 'destructive',
@@ -90,7 +112,6 @@ export class Tab2Page implements OnInit {
         }
       ]
     });
-
     await alert.present();
   }
 }

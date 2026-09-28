@@ -2,10 +2,10 @@
   <ion-toolbar color="primary">
     <ion-title>Mis Mascotas</ion-title>
     <ion-buttons slot="end">
-  <ion-button (click)="confirmarLogout()">
-    <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-  </ion-button>
-</ion-buttons>
+      <ion-button (click)="confirmarLogout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -15,6 +15,16 @@
       <ion-title size="large">Mis Mascotas</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- 🔍 Buscador -->
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="onSearchChange($event)"
+    placeholder="Buscar por nombre, especie, raza o dueño..."
+    debounce="300"
+    animated
+    showClearButton="focus">
+  </ion-searchbar>
 
   <!-- Spinner de carga -->
   <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
@@ -26,12 +36,15 @@
   <ion-list *ngIf="!isLoading">
     <ion-item *ngFor="let mascota of listaMascotas" [routerLink]="['/pet-detail', mascota.id]" button detail>
       <ion-avatar slot="start">
-        <ion-icon [name]="mascota.type_name === 'Perro' ? 'paw' : 'fish'" style="font-size: 2rem;"></ion-icon>
+        <i [class]="getSpeciesIcon(mascota.type_name || mascota.species_name)"
+           style="font-size: 1.8rem; color: var(--ion-color-primary);"></i>
       </ion-avatar>
       <ion-label>
         <h2>{{ mascota.name }}</h2>
-        <p>{{ mascota.type_name }} - {{ mascota.breed_name || 'Sin raza' }}</p>
-        <p style="font-size: 0.8rem;">Cédula del dueño: {{ mascota.owner_id }}</p>
+        <p>{{ mascota.type_name || mascota.species_name }} - {{ mascota.breed_name || 'Sin raza' }}</p>
+        <p style="font-size: 0.8rem;" *ngIf="mascota.owner_name">
+          Dueño: {{ mascota.owner_name }}
+        </p>
       </ion-label>
       <ion-badge color="primary" slot="end">{{ mascota.gender || 'N/D' }}</ion-badge>
     </ion-item>
@@ -39,7 +52,9 @@
 
   <!-- Mensaje si no hay mascotas -->
   <ion-text *ngIf="!isLoading && listaMascotas.length === 0" color="medium">
-    <p style="text-align: center; margin-top: 20px;">Aún no tienes mascotas registradas en el sistema.</p>
+    <p style="text-align: center; margin-top: 20px;">
+      {{ searchTerm ? 'No se encontraron mascotas con esa búsqueda.' : 'Aún no tienes mascotas registradas en el sistema.' }}
+    </p>
   </ion-text>
 
   <!-- Botón Flotante para Agregar Nueva Mascota -->
