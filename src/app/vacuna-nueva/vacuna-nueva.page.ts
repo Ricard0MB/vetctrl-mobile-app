@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastController, LoadingController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 import { VaccinesService } from '../services/vaccines.service';
 import { PetsService } from '../services/pets.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-vacuna-nueva',
@@ -24,11 +26,15 @@ export class VacunaNuevaPage implements OnInit {
   loteNumber: string = '';
   notes: string = '';
 
+  private apiBaseUrl = 'https://vetctrl.onrender.com/api/index.php';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient,
     private vaccinesService: VaccinesService,
     private petsService: PetsService,
+    private authService: AuthService,
     private toastController: ToastController,
     private loadingController: LoadingController
   ) {}
@@ -40,25 +46,55 @@ export class VacunaNuevaPage implements OnInit {
     this.route.params.subscribe(params => {
       this.petId = +params['petId'];
       this.cargarPet();
-      this.cargarTiposVacuna();
     });
   }
 
+  /**
+   * Cargar los datos de la mascota.
+   * Cuando termine, carga los tipos de vacuna filtrados por especie.
+   */
   cargarPet() {
     this.isLoadingPet = true;
     this.petsService.getPetDetail(this.petId).subscribe({
       next: (res: any) => {
-        if (res.success) this.petData = res.data.pet;
+        if (res.success) {
+          this.petData = res.data.pet;
+          // 🔥 Después de cargar la mascota, cargamos los tipos filtrados por especie
+          this.cargarTiposVacuna();
+        }
         this.isLoadingPet = false;
       },
-      error: () => { this.isLoadingPet = false; }
+      error: () => {
+        this.isLoadingPet = false;
+      }
     });
   }
 
+  /**
+   * Carga los tipos de vacuna.
+   * Si tenemos la especie de la mascota, filtramos por ella.
+   */
   cargarTiposVacuna() {
-    this.vaccinesService.getVaccineTypes().subscribe({
+    const species = this.petData?.species_name;
+
+    let url = `${this.apiBaseUrl}?resource=vaccine-types`;
+    if (species) {
+      url += `&species=${encodeURIComponent(species)}`;
+    }
+
+    console.log('🟢 Cargando tipos de vacuna:', { species, url });
+
+    this.http.get(url, {
+      headers: this.authService.getAuthHeaders()
+    }).subscribe({
       next: (res: any) => {
-        if (res.success) this.vaccineTypes = res.data;
+        if (res.success) {
+          this.vaccineTypes = res.data;
+          console.log('🟢 Tipos de vacuna cargados:', this.vaccineTypes.length);
+        }
+      },
+      error: (err) => {
+        console.error('🔴 Error al cargar tipos de vacuna:', err);
       }
     });
   }
@@ -86,6 +122,8 @@ export class VacunaNuevaPage implements OnInit {
       lote_number: this.loteNumber.trim() || undefined,
       notes: this.notes.trim() || undefined
     };
+
+    console.log('📤 Enviando vacuna:', payload);
 
     this.vaccinesService.createVaccine(payload).subscribe({
       next: async (res: any) => {
