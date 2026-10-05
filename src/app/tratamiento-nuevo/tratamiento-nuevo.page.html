@@ -24,6 +24,30 @@
 
     <ion-card>
       <ion-card-content>
+        <!-- 🔥 Selector de tratamiento del catálogo -->
+        <ion-item>
+          <ion-label position="stacked">Tratamiento predefinido (opcional)</ion-label>
+          <ion-select 
+            [(ngModel)]="selectedCatalogId" 
+            (ionChange)="onCatalogSelected()"
+            placeholder="Selecciona un tratamiento del catálogo">
+            <ion-select-option [value]="null">-- Tratamiento personalizado --</ion-select-option>
+            <ion-select-option *ngFor="let t of catalog" [value]="t.id">
+              {{ t.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-button 
+          *ngIf="selectedCatalogId" 
+          fill="clear" 
+          size="small" 
+          color="medium"
+          (click)="limpiarCatalogo()">
+          <ion-icon slot="start" name="close-circle"></ion-icon>
+          Limpiar selección
+        </ion-button>
+
         <ion-item>
           <ion-label position="stacked">Título del tratamiento *</ion-label>
           <ion-input type="text" [(ngModel)]="title" placeholder="Ej: Antibiótico para infección"></ion-input>
