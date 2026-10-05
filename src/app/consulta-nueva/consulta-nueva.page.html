@@ -29,6 +29,30 @@
           <ion-input type="datetime-local" [(ngModel)]="consultationDate"></ion-input>
         </ion-item>
 
+        <!-- 🔥 Selector de enfermedad filtrado por especie -->
+        <ion-item>
+          <ion-label position="stacked">Enfermedad (opcional)</ion-label>
+          <ion-select 
+            [(ngModel)]="selectedDiseaseId" 
+            (ionChange)="onDiseaseSelected()"
+            placeholder="Selecciona una enfermedad común">
+            <ion-select-option [value]="null">-- Sin enfermedad específica --</ion-select-option>
+            <ion-select-option *ngFor="let d of diseases" [value]="d.id">
+              {{ d.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-button 
+          *ngIf="selectedDiseaseId" 
+          fill="clear" 
+          size="small" 
+          color="medium"
+          (click)="limpiarEnfermedad()">
+          <ion-icon slot="start" name="close-circle"></ion-icon>
+          Limpiar selección
+        </ion-button>
+
         <ion-item>
           <ion-label position="stacked">Motivo</ion-label>
           <ion-input type="text" [(ngModel)]="reason" placeholder="Ej: Control, Vacunación"></ion-input>
@@ -36,12 +60,12 @@
 
         <ion-item>
           <ion-label position="stacked">Diagnóstico *</ion-label>
-          <ion-textarea [(ngModel)]="diagnosis" rows="3" placeholder="Diagnóstico clínico"></ion-textarea>
+          <ion-textarea [(ngModel)]="diagnosis" rows="4" placeholder="Diagnóstico clínico"></ion-textarea>
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">Tratamiento</ion-label>
-          <ion-textarea [(ngModel)]="treatment" rows="3" placeholder="Tratamiento indicado"></ion-textarea>
+          <ion-textarea [(ngModel)]="treatment" rows="4" placeholder="Tratamiento indicado"></ion-textarea>
         </ion-item>
 
         <ion-item>
