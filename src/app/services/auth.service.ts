@@ -18,6 +18,20 @@ export class AuthService {
     }
   }
 
+      updateProfile(data: any): Observable<any> {
+    return this.http.put(`${this.apiBaseUrl}?resource=auth&action=profile`, data, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap((response: any) => {
+        if (response.success && response.data) {
+          // Reemplazamos el usuario entero con el que devuelve el backend
+          localStorage.setItem('vetctrl_user', JSON.stringify(response.data));
+          this.currentUserSubject.next(response.data);
+        }
+      })
+    );
+  }
+
   login(username: string, password: string): Observable<any> {
     return this.http.post(`${this.apiBaseUrl}?resource=auth&action=login`, { username, password })
       .pipe(

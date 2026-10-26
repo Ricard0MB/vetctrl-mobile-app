@@ -31,6 +31,15 @@ export class AppointmentsService {
     );
   }
 
+// Actualizar cita
+updateAppointment(id: number, data: any): Observable<any> {
+  return this.http.put(
+    `${this.apiBaseUrl}?resource=appointments&id=${id}`,
+    data,
+    { headers: this.authService.getAuthHeaders() }
+  );
+}
+
   // Crear cita
   createAppointment(data: {
     pet_id: number;
@@ -62,3 +71,4 @@ export class AppointmentsService {
     );
   }
 }
+

@@ -1,0 +1,43 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis Citas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando citas...</p>
+  </div>
+
+  <ion-list *ngIf="!isLoading">
+    <ion-item *ngFor="let cita of citas">
+      <ion-icon name="calendar-outline" slot="start" color="primary" size="large"></ion-icon>
+      <ion-label>
+        <h2><strong>{{ cita.pet_name }}</strong></h2>
+        <p><ion-icon name="time-outline"></ion-icon> {{ cita.appointment_date }}</p>
+        <p><ion-icon name="document-text-outline"></ion-icon> {{ cita.reason }}</p>
+        <ion-badge [color]="getBadgeColor(cita.status)" class="ion-margin-top">
+          {{ cita.status }}
+        </ion-badge>
+      </ion-label>
+      <ion-button 
+        *ngIf="cita.status === 'PENDIENTE'" 
+        fill="clear" 
+        color="danger" 
+        slot="end"
+        (click)="cancelarCita(cita)">
+        <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ion-text *ngIf="!isLoading && citas.length === 0" color="medium">
+    <p style="text-align: center; margin-top: 30px;">No tienes citas registradas.</p>
+  </ion-text>
+
+</ion-content>

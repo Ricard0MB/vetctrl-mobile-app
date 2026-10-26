@@ -1,17 +1,86 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>VetCtrl</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="irA('/perfil')">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando tu panel...</p>
+  </div>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <div *ngIf="!isLoading" class="fade-in">
+    
+    <!-- Saludo -->
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--ion-color-primary); margin: 0;">
+        ¡Hola, {{ username }}! 👋
+      </h1>
+      <p style="color: #666; margin-top: 5px;">Bienvenido a tu clínica veterinaria.</p>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <ion-grid class="ion-no-padding">
+      <ion-row>
+        <ion-col size="6" class="ion-padding-start ion-padding-end ion-padding-bottom">
+          <!-- 🔥 Se añade el atributo 'button' para que toda la tarjeta sea clickeable -->
+          <ion-card button color="primary" class="stat-card" (click)="irA('/tabs/tab2')">
+            <ion-icon name="paw-outline" size="large"></ion-icon>
+            <h2>{{ totalMascotas }}</h2>
+            <p>Mis Mascotas</p>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" class="ion-padding-start ion-padding-end ion-padding-bottom">
+          <ion-card button color="secondary" class="stat-card" (click)="irA('/mis-citas')">
+            <ion-icon name="calendar-outline" size="large"></ion-icon>
+            <h2>{{ citasPendientes }}</h2>
+            <p>Citas Pendientes</p>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12" class="ion-padding-start ion-padding-end">
+          <ion-card button color="warning" class="stat-card" (click)="irA('/alertas-vacunas')">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+              <ion-icon name="warning-outline" size="large"></ion-icon>
+              <div style="text-align: left;">
+                <h2 style="margin: 0;">{{ alertasVacunas }}</h2>
+                <p style="margin: 0;">Alertas de Vacunas</p>
+              </div>
+            </div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Accesos Rápidos -->
+    <h3 style="font-weight: 700; margin: 24px 0 12px 4px; color: var(--ion-color-dark);">Accesos Rápidos</h3>
+    <ion-list lines="none" style="background: transparent;">
+      <ion-item button routerLink="/pet-nueva" class="quick-action" detail="true">
+        <ion-icon name="add-circle" slot="start" color="primary"></ion-icon>
+        <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Registrar Nueva Mascota</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/tabs/tab3" class="quick-action" detail="true">
+        <ion-icon name="calendar" slot="start" color="secondary"></ion-icon>
+        <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Agendar Cita Médica</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/mis-citas" class="quick-action" detail="true">
+        <ion-icon name="list" slot="start" color="tertiary"></ion-icon>
+        <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Ver Todas Mis Citas</ion-label>
+      </ion-item>
+      <!-- 🔥 Botón de Admin -->
+      <ion-item button routerLink="/admin-panel" class="quick-action" detail="true" *ngIf="roleName === 'admin'">
+        <ion-icon name="shield-checkmark" slot="start" color="danger"></ion-icon>
+        <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Panel de Administración</ion-label>
+      </ion-item>
+    </ion-list>
+
+  </div>
 </ion-content>

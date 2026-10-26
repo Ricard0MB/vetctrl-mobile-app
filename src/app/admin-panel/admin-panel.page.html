@@ -1,0 +1,98 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Administración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  
+  <!-- 🔥 Selector de segmento fuera del header para que se visualice bien -->
+  <div style="background: rgb(0, 0, 0); padding: 10px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10;">
+    <ion-segment [value]="segment" (ionChange)="segmentChanged($event)" color="dark" mode="md">
+      <ion-segment-button value="metricas">
+        <ion-icon name="stats-chart-outline"></ion-icon>
+        <ion-label>Métricas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="bitacora">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>Bitácora</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <div class="ion-padding">
+    <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+      <ion-spinner name="crescent" color="dark"></ion-spinner>
+    </div>
+
+    <!-- SECCIÓN: MÉTRICAS -->
+    <div *ngIf="!isLoading && segment === 'metricas'">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="6" class="ion-padding-bottom">
+            <ion-card color="primary" class="metric-card">
+              <ion-icon name="people-outline" size="large"></ion-icon>
+              <h2>{{ metricas.total_owners || 0 }}</h2>
+              <p>Propietarios</p>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6" class="ion-padding-bottom">
+            <ion-card color="secondary" class="metric-card">
+              <ion-icon name="medkit-outline" size="large"></ion-icon>
+              <h2>{{ metricas.total_vets || 0 }}</h2>
+              <p>Veterinarios</p>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12" class="ion-padding-bottom">
+            <ion-card color="success" class="metric-card">
+              <ion-icon name="paw-outline" size="large"></ion-icon>
+              <h2>{{ metricas.total_pets || 0 }}</h2>
+              <p>Pacientes Totales</p>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6" class="ion-padding-bottom">
+            <ion-card color="warning" class="metric-card">
+              <ion-icon name="time-outline" size="large"></ion-icon>
+              <h2>{{ metricas.pending_appointments || 0 }}</h2>
+              <p>Citas Pendientes</p>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6" class="ion-padding-bottom">
+            <ion-card color="tertiary" class="metric-card">
+              <ion-icon name="calendar-outline" size="large"></ion-icon>
+              <h2>{{ metricas.today_appointments || 0 }}</h2>
+              <p>Citas Hoy</p>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- SECCIÓN: BITÁCORA -->
+    <div *ngIf="!isLoading && segment === 'bitacora'">
+      <ion-list lines="full" style="background: transparent;">
+        <ion-item *ngFor="let log of bitacora" class="log-item">
+          <ion-icon name="document-text-outline" slot="start" color="dark"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <h2 style="font-weight: 600; font-size: 0.95rem; color: #333;">{{ log.action }}</h2>
+            <p style="color: #666; margin-top: 4px;">
+              <ion-icon name="person-outline" style="vertical-align: middle;"></ion-icon> 
+              {{ log.username }} <span style="margin: 0 5px;">•</span> {{ log.timestamp }}
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <div *ngIf="bitacora.length === 0" style="text-align: center; color: #666; margin-top: 30px;">
+        <p>No hay registros en la bitácora.</p>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

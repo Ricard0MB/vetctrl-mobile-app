@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Alertas de Vacunas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Buscando vacunas pendientes...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <ion-card *ngFor="let alerta of alertas" [color]="getDiasRestantes(alerta.next_due_date) < 0 ? 'danger' : 'warning'">
+      <ion-card-header>
+        <ion-card-title style="color: white;">{{ alerta.pet_name }}</ion-card-title>
+        <ion-card-subtitle style="color: white; opacity: 0.8;">{{ alerta.vaccine_name }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content style="color: white;">
+        <p><strong>Dueño:</strong> {{ alerta.owner_name }}</p>
+        <p><strong>Fecha de vencimiento:</strong> {{ alerta.next_due_date }}</p>
+        
+        <div style="margin-top: 10px; font-weight: bold; font-size: 1.1rem;">
+          <ion-icon name="warning-outline" style="vertical-align: middle;"></ion-icon>
+          <span *ngIf="getDiasRestantes(alerta.next_due_date) < 0">
+            ¡Vencida hace {{ -getDiasRestantes(alerta.next_due_date) }} días!
+          </span>
+          <span *ngIf="getDiasRestantes(alerta.next_due_date) === 0">
+            ¡Vence HOY!
+          </span>
+          <span *ngIf="getDiasRestantes(alerta.next_due_date) > 0">
+            Vence en {{ getDiasRestantes(alerta.next_due_date) }} días
+          </span>
+        </div>
+
+        <ion-button 
+          expand="block" 
+          fill="solid" 
+          color="light" 
+          class="ion-margin-top"
+          (click)="irAAplicarVacuna(alerta.pet_id)">
+          Aplicar Nueva Dosis
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="alertas.length === 0" style="text-align: center; margin-top: 50px; color: #666;">
+      <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+      <p>¡Todo al día! No hay vacunas vencidas ni próximas a vencer.</p>
+    </div>
+  </div>
+
+</ion-content>
