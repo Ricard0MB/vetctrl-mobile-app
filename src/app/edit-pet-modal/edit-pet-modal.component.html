@@ -1,0 +1,36 @@
+<p>
+  edit-pet-modal works!
+</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Editar Paciente</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">Cancelar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="input-group">
+    <label>Nombre de la mascota</label>
+    <input type="text" [(ngModel)]="pet.name" class="custom-input">
+  </div>
+
+  <div class="input-group">
+    <label>Especie</label>
+    <!-- Aquí puedes usar un select con tus especies traídas del backend -->
+    <input type="text" [(ngModel)]="pet.species_name" class="custom-input" readonly>
+  </div>
+
+  <div class="input-group">
+    <label>Género</label>
+    <ion-select [(ngModel)]="pet.gender" interface="popover" class="custom-input">
+      <ion-select-option value="Macho">Macho</ion-select-option>
+      <ion-select-option value="Hembra">Hembra</ion-select-option>
+    </ion-select>
+  </div>
+
+  <ion-button expand="block" color="success" class="ion-margin-top" (click)="saveChanges()">
+    Guardar Cambios
+  </ion-button>
+</ion-content>

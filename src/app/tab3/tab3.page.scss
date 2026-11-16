@@ -1,0 +1,214 @@
+/* Fondo general del chat con un patrón sutil */
+.chat-background {
+  --background: #e5ddd5; /* Color clásico de fondo de WhatsApp */
+  background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+  background-repeat: repeat;
+  background-size: 300px;
+}
+
+/* =========================================
+   MODO OSCURO PARA EL CHAT
+   ========================================= */
+@media (prefers-color-scheme: dark) {
+  .chat-background {
+    --background: #0b141a; /* Fondo oscuro tipo WhatsApp */
+    background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Mantenemos el patrón sutil */
+    background-blend-mode: overlay;
+  }
+
+  .date-divider span {
+    background: #182229;
+    color: #8696a0;
+  }
+
+  .bot-bubble {
+    background: #202c33; /* Burbuja del bot oscura */
+    color: #e9edef;
+  }
+
+  .user-bubble {
+    background: #005c4b; /* Burbuja del usuario verde oscuro */
+    color: #e9edef;
+    .time { color: #8696a0; }
+  }
+
+  .chat-footer {
+    background: #111b21;
+    border-top-color: #222d34;
+  }
+
+  .input-wrapper {
+    background: #2a3942;
+  }
+
+  .chat-input {
+    --color: #e9edef !important; /* Texto claro para que se lea */
+    --placeholder-color: #8696a0;
+  }
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+
+  .option-btn {
+    --border-radius: 18px;
+    text-transform: none;
+    font-weight: 500;
+  }
+}
+
+.chat-container {
+  padding: 16px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Separador de fecha */
+.date-divider {
+  text-align: center;
+  margin: 10px 0 20px 0;
+  span {
+    background: rgba(225, 245, 254, 0.9);
+    color: #5b6e8c;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+}
+
+.message-row {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: flex-end;
+  max-width: 85%;
+
+  &.user-row {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+}
+
+/* Avatar del Bot */
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Burbujas de mensaje */
+.bubble {
+  padding: 8px 12px;
+  border-radius: 12px;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  max-width: 100%;
+
+  p {
+    margin: 0;
+    padding-bottom: 14px; /* Espacio para la hora */
+    white-space: pre-wrap;
+  }
+
+  .time {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 0.65rem;
+    color: #999;
+  }
+}
+
+.bot-bubble {
+  background: white;
+  color: #333;
+  border-top-left-radius: 2px; /* Esquina estilo WhatsApp */
+}
+
+.user-bubble {
+  background: #dcf8c6; /* Verde claro clásico de WhatsApp */
+  color: #333;
+  border-top-right-radius: 2px;
+  
+  .time { color: #7ba66a; }
+}
+
+/* Animación de los puntitos */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 20px;
+  padding-bottom: 0 !important;
+  
+  span {
+    width: 6px;
+    height: 6px;
+    background-color: #999;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out both;
+    
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* =========================================
+   BARRA DE ESCRIBIR (Input)
+   ========================================= */
+.chat-footer {
+  background: #f0f0f0;
+  padding: 8px 10px;
+  border-top: 1px solid #d1d7db;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 24px;
+  padding: 4px 8px 4px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.chat-input {
+  --color: #333 !important; /* 🔥 Fuerza el color oscuro para que se lea */
+  --placeholder-color: #999;
+  --padding-start: 0;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.send-btn {
+  --color: var(--ion-color-primary);
+  margin: 0;
+  height: 36px;
+  width: 36px;
+  
+  ion-icon {
+    font-size: 1.4rem;
+  }
+}

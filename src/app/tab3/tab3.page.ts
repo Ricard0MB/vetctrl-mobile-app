@@ -1,8 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { ToastController, LoadingController } from '@ionic/angular';
-import { PetsService } from '../services/pets.service';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
-import { AppointmentsService } from '../services/appointments.service';
+
+interface ChatMessage {
+  text: string;
+  isUser: boolean;
+  time: Date;
+  options?: { id: any; texto: string }[]; // 'any' para aceptar ID numérico o de menú
+  pending?: any;
+}
 
 @Component({
   selector: 'app-tab3',
@@ -11,130 +17,122 @@ import { AppointmentsService } from '../services/appointments.service';
   standalone: false
 })
 export class Tab3Page implements OnInit {
+  @ViewChild('chatContainer', { static: false }) chatContainer!: ElementRef;
 
-  listaMascotas: any[] = [];
-  selectedPetId: number | null = null;
-  motivoConsulta: string = '';
-  fechaPreferida: string = new Date().toISOString();
-  horaPreferida: string = '10:00';
-  isLoading: boolean = false;
+  private apiBaseUrl = 'https://vetctrl.onrender.com/api/index.php';
+
+  // 👇 MENÚ INICIAL AGREGADO AQUÍ
+  messages: ChatMessage[] = [
+    {
+      text: '¡Hola! Soy VetBot 🤖. ¿En qué te puedo ayudar hoy?',
+      isUser: false,
+      time: new Date(),
+      options: [
+        { id: 'menu_consulta', texto: '🩺 Consulta médica' },
+        { id: 'menu_registrar', texto: '📝 Registrar paciente' },
+        { id: 'menu_editar', texto: '✏️ Editar paciente' },
+        { id: 'menu_cita', texto: '📅 Agendar cita' }
+      ]
+    }
+  ];
+  newMessage: string = '';
+  isBotTyping: boolean = false;
 
   constructor(
-    private petsService: PetsService,
-    private authService: AuthService,
-    private appointmentsService: AppointmentsService,
-    private toastController: ToastController,
-    private loadingController: LoadingController
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    this.cargarMascotasUsuario();
-  }
+  ngOnInit() {}
 
-  ionViewWillEnter() {
-    this.cargarMascotasUsuario();
-  }
+  sendMessage(directText?: string, optionId?: any, pending?: any) {
+    const userText = (directText ?? this.newMessage).trim();
+    if (!userText) return;
 
-  cargarMascotasUsuario() {
-    const user = this.authService.getCurrentUser();
-    if (!user) {
-      console.warn('No hay usuario logueado');
-      return;
+    // 1. Pintar mensaje del usuario
+    this.messages.push({ text: userText, isUser: true, time: new Date() });
+    this.newMessage = '';
+    this.isBotTyping = true;
+    this.scrollToBottom();
+
+    // 2. Construir payload
+    const payload: any = { message: userText };
+    
+    // Si es una opción de la BD (número), la mandamos al backend
+    if (typeof optionId === 'number') {
+      payload.optionId = optionId;
+    }
+    if (pending !== undefined) {
+      payload.pendingAction = pending;
     }
 
-    // Para admin/veterinario traemos todas las mascotas
-    // Para propietario solo las suyas
-    const obs = user.role_name === 'Propietario'
-      ? this.petsService.getPetsByOwner(user.id)
-      : this.petsService.getPets();
-
-    obs.subscribe({
+    // 3. Llamar al backend
+    this.http.post(`${this.apiBaseUrl}?resource=chatbot`, payload, {
+      headers: this.authService.getAuthHeaders()
+    }).subscribe({
       next: (res: any) => {
-        if (res.success) {
-          // La respuesta del listado viene como { data: { pets: [...] } } o { data: [...] }
-          this.listaMascotas = res.data.pets || res.data;
-          if (this.listaMascotas.length > 0) {
-            this.selectedPetId = this.listaMascotas[0].id;
-          }
+        this.isBotTyping = false;
+        if (res.success && res.data && res.data.reply) {
+          this.handleBotReply(res.data.reply);
+        } else {
+          this.messages.push({ text: 'No recibí respuesta del servidor. 😔', isUser: false, time: new Date() });
         }
+        this.scrollToBottom();
       },
-      error: (err) => {
-        console.error('Error cargando mascotas:', err);
+      error: (err: any) => {
+        this.isBotTyping = false;
+        console.error('Error del bot:', err);
+        this.messages.push({ text: 'Error de conexión con el servidor. 😔', isUser: false, time: new Date() });
+        this.scrollToBottom();
       }
     });
   }
 
-  async agendarCita() {
-    if (!this.selectedPetId || !this.motivoConsulta.trim()) {
-      const toast = await this.toastController.create({
-        message: 'Por favor completa todos los campos requeridos.',
-        duration: 2500,
-        color: 'warning'
-      });
-      await toast.present();
+  private handleBotReply(reply: any) {
+    if (typeof reply === 'string') {
+      this.messages.push({ text: reply, isUser: false, time: new Date() });
       return;
     }
 
-    const loader = await this.loadingController.create({
-      message: 'Agendando cita...'
+    if (reply.tipo === 'opciones' && Array.isArray(reply.opciones)) {
+      this.messages.push({
+        text: reply.pregunta || '¿A cuál te refieres?',
+        isUser: false,
+        time: new Date(),
+        options: reply.opciones,
+        pending: reply.pending ?? null
+      });
+      return;
+    }
+
+    this.messages.push({
+      text: reply.texto || 'No entendí tu solicitud.',
+      isUser: false,
+      time: new Date()
     });
-    await loader.present();
+  }
 
-    // Convertir la fecha ISO a formato MySQL "YYYY-MM-DD HH:MM:SS"
-    const fechaBase = new Date(this.fechaPreferida);
-    const yyyy = fechaBase.getFullYear();
-    const mm = String(fechaBase.getMonth() + 1).padStart(2, '0');
-    const dd = String(fechaBase.getDate()).padStart(2, '0');
-    const hh = this.horaPreferida.split(':')[0];
-    const mi = this.horaPreferida.split(':')[1] || '00';
-    const appointmentDate = `${yyyy}-${mm}-${dd} ${hh}:${mi}:00`;
+  onOptionClick(msg: ChatMessage, opt: { id: any; texto: string }) {
+    if (!msg.options) return;
 
-    const citaPayload = {
-      pet_id: this.selectedPetId,
-      appointment_date: appointmentDate,
-      reason: this.motivoConsulta.trim()
-    };
+    // Limpiar opciones para que no se pueda tocar dos veces
+    msg.options = undefined;
 
-    console.log('📤 Enviando cita:', citaPayload);
+    // Si es una opción del menú inicial (texto), solo enviamos el texto
+    if (typeof opt.id === 'string' && opt.id.startsWith('menu_')) {
+      this.sendMessage(opt.texto);
+    } else {
+      // Si es una opción de mascota (ID numérico), enviamos el ID y el pending
+      this.sendMessage(opt.texto, opt.id, msg.pending);
+      msg.pending = undefined;
+    }
+  }
 
-    this.appointmentsService.createAppointment(citaPayload).subscribe({
-      next: async (res: any) => {
-        await loader.dismiss();
-        console.log('📥 Respuesta:', res);
-
-        if (res.success) {
-          const toast = await this.toastController.create({
-            message: '¡Cita agendada correctamente!',
-            duration: 3000,
-            color: 'success'
-          });
-          await toast.present();
-          this.motivoConsulta = '';
-        } else {
-          const toast = await this.toastController.create({
-            message: res.message || 'Error al agendar la cita',
-            duration: 3500,
-            color: 'danger'
-          });
-          await toast.present();
-        }
-      },
-      error: async (err) => {
-        await loader.dismiss();
-        console.error('❌ Error al agendar:', err);
-
-        let msg = 'Error de conexión con el servidor.';
-        if (err.status === 401) msg = 'Sesión expirada. Inicia sesión de nuevo.';
-        else if (err.status === 422) msg = err.error?.message || 'Datos inválidos.';
-        else if (err.status === 403) msg = 'No tienes permiso para agendar esta cita.';
-
-        const toast = await this.toastController.create({
-          message: msg,
-          duration: 3500,
-          color: 'danger'
-        });
-        await toast.present();
+  scrollToBottom() {
+    setTimeout(() => {
+      if (this.chatContainer) {
+        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
       }
-    });
+    }, 100);
   }
 }

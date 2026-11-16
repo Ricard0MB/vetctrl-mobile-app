@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalController } from '@ionic/angular'; 
 import { PetsService } from '../services/pets.service';
 import { AuthService } from '../services/auth.service';
 import { SpeciesIconsService } from '../services/species-icons.service';
+import { EditPetModalComponent } from '../edit-pet-modal/edit-pet-modal.component';
 
 @Component({
   selector: 'app-pet-detail',
@@ -21,7 +23,8 @@ export class PetDetailPage implements OnInit {
     private router: Router,
     private petsService: PetsService,
     public authService: AuthService,
-    private speciesIcons: SpeciesIconsService
+    private speciesIcons: SpeciesIconsService,
+    private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {
@@ -54,48 +57,54 @@ export class PetDetailPage implements OnInit {
     });
   }
 
+  // 👇 FUNCIÓN BLINDADA: Revisa role_name o role, y siempre devuelve true si no hay usuario (solo para probar)
   canEdit(): boolean {
     const user = this.authService.getCurrentUser();
-    return !!user && (user.role_name === 'Veterinario' || user.role_name === 'admin');
+    // Si quieres que el botón salga SIEMPRE para probar, descomenta la siguiente línea:
+    // return true; 
+
+    if (!user) return false;
+    
+    // Buscamos en 'role_name' o en 'role' por si tu backend usa otro nombre
+    const rolReal = user.role_name || user.role || user.rol || '';
+    const rol = rolReal.toLowerCase();
+    
+    console.log('ROL DETECTADO EN EL FRONTEND:', rol); // Míralo en la consola F12
+    
+    return rol.includes('admin') || rol.includes('veterinario') || rol.includes('vet');
   }
 
   getSpeciesIcon(speciesName: string | undefined | null): string {
     return this.speciesIcons.getSpeciesIcon(speciesName);
   }
 
-  nuevaConsulta() {
-    if (!this.canEdit()) return;
-    this.router.navigate(['/consulta-nueva', this.petId]);
+  async openEditModal() {
+    if (!this.petData) return;
+
+    const modal = await this.modalCtrl.create({
+      component: EditPetModalComponent,
+      componentProps: {
+        pet: { ...this.petData.pet }
+      }
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+    if (role === 'confirm') {
+      this.cargarDetalle();
+    }
   }
 
-  nuevoTratamiento() {
-    if (!this.canEdit()) return;
-    this.router.navigate(['/tratamiento-nuevo', this.petId]);
-  }
-
-  aplicarVacuna() {
-    if (!this.canEdit()) return;
-    this.router.navigate(['/vacuna-nueva', this.petId]);
-  }
-
-  nuevaCita() {
-    if (!this.canEdit()) return;
-    this.router.navigate(['/tabs/tab3']);
-  }
-
-  volver() {
-    this.router.navigate(['/tabs/tab2']);
-  }
+  nuevaConsulta() { if (this.canEdit()) this.router.navigate(['/consulta-nueva', this.petId]); }
+  nuevoTratamiento() { if (this.canEdit()) this.router.navigate(['/tratamiento-nuevo', this.petId]); }
+  aplicarVacuna() { if (this.canEdit()) this.router.navigate(['/vacuna-nueva', this.petId]); }
+  nuevaCita() { if (this.canEdit()) this.router.navigate(['/tabs/tab3']); }
+  volver() { this.router.navigate(['/tabs/tab2']); }
 
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 }

@@ -17,6 +17,8 @@
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
+/* src/global.scss */
+@import "@ionic/angular/css/palettes/dark.class.css";
 
 /* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
@@ -35,3 +37,64 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+
+/* =========================================
+   DISEÑO GLOBAL VETCTRL (Igual a la web)
+   ========================================= */
+
+/* 1. Forzar fuente y colores base */
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+  --ion-font-family: 'Inter', sans-serif;
+  background-color: var(--ion-background-color);
+}
+
+/* 2. Tarjetas con sombra suave y bordes redondeados como en la web */
+ion-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  border: 1px solid #eef2f8;
+  margin-bottom: 16px;
+}
+
+/* 3. Headers con el color principal y texto blanco */
+ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+  font-weight: 600;
+}
+
+/* 4. Títulos con la línea verde característica */
+h1, h2, h3 {
+  color: var(--ion-color-secondary);
+}
+
+ion-title {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* 5. Botones más redondeados y sin MAYÚSCULAS forzadas */
+ion-button {
+  --border-radius: 10px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  box-shadow: none;
+}
+
+/* 6. Inputs y Selects más limpios */
+ion-item {
+  --border-color: #e2e8f0;
+  --border-radius: 10px;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  margin-bottom: 8px;
+}
+
+/* 7. Ajustes para el Chatbot (burbujas) */
+.chat-wrapper {
+  height: 100%;
+  background-color: #f4f7f9;
+}

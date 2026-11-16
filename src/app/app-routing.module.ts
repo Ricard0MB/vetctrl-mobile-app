@@ -5,6 +5,8 @@ const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule) },
   { path: 'register', loadChildren: () => import('./register/register.module').then(m => m.RegisterPageModule) },
+  // 👇 NUEVA RUTA AGREGADA AQUÍ
+  { path: 'forgot-password', loadChildren: () => import('./forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule) },
   { path: 'tabs', loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule) },
   { path: 'pet-detail/:id', loadChildren: () => import('./pet-detail/pet-detail.module').then(m => m.PetDetailPageModule) },
   { path: 'pet-nueva', loadChildren: () => import('./pet-nueva/pet-nueva.module').then(m => m.PetNuevaPageModule) },

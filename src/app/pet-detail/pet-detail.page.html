@@ -4,6 +4,15 @@
       <ion-back-button defaultHref="/tabs/tab2"></ion-back-button>
     </ion-buttons>
     <ion-title>Ficha Clínica</ion-title>
+    
+    <!-- 👇 BOTÓN FORZADO PARA QUE SE VEA SÍ O SÍ -->
+    <ion-buttons slot="end" *ngIf="petData">
+      <ion-button (click)="openEditModal()" color="light" fill="solid" size="small">
+        <ion-icon slot="start" name="create-outline"></ion-icon>
+        Editar
+      </ion-button>
+    </ion-buttons>
+    
   </ion-toolbar>
 </ion-header>
 
