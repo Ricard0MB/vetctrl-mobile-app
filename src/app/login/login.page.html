@@ -9,7 +9,6 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       
-      <!-- Imagen superior (Centrada y con límite) -->
       <div class="auth-image">
         <img src="assets/images/fondo-mascotas.png" alt="Mascotas felices">
       </div>
@@ -36,7 +35,6 @@
                      placeholder="••••••••" required autocomplete="new-password"
                      [type]="showPassword ? 'text' : 'password'" class="custom-input">
               
-              <!-- Botón del perrito (Tamaño controlado) -->
               <button type="button" class="toggle-password" (click)="togglePassword()">
                 <img [src]="showPassword ? 'assets/images/cama.png' : 'assets/images/perro.png'" 
                      alt="Icono mostrar">
@@ -52,12 +50,9 @@
 
         <div class="auth-links">
           <p>¿No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
-          
-          <!-- BOTÓN DE RECUPERAR CONTRASEÑA -->
           <ion-button fill="clear" routerLink="/forgot-password" class="forgot-btn">
             ¿Olvidaste tu contraseña?
           </ion-button>
-          
           <p><a href="#" (click)="openTutorial($event)">¿No sabes qué hacer?</a></p>
         </div>
       </div>
@@ -67,27 +62,40 @@
   <footer class="copyright-footer">
     <p>© 2026 VetCtrl. Todos los derechos reservados.</p>
   </footer>
+</ion-content>
 
-  <!-- Modal del Tutorial -->
-  <div class="tutorial-overlay" [class.active]="isTutorialOpen">
-    <div class="tutorial-modal">
-      <div class="tutorial-header">
-        <h3>🎓 Tutorial de VetCtrl</h3>
-        <button (click)="closeTutorial()">&times;</button>
-      </div>
-      <div class="tutorial-content">
-        <div class="step-title">{{ steps[currentStep].title }}</div>
-        <div class="step-desc" [innerHTML]="steps[currentStep].desc"></div>
-      </div>
-      <div class="tutorial-footer">
-        <button class="btn-prev" [style.visibility]="currentStep === 0 ? 'hidden' : 'visible'" (click)="prevStep()">← Anterior</button>
-        <button class="btn-next" (click)="nextStep()">
-          {{ currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente →' }}
-        </button>
-      </div>
+<!-- 👇 MODAL NATIVO DE IONIC PARA EL TUTORIAL -->
+<ion-modal [isOpen]="isTutorialOpen" (didDismiss)="closeTutorial()" class="tutorial-modal-ion">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar color="primary">
+        <ion-title>🎓 Tutorial de VetCtrl</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeTutorial()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="step-title">{{ steps[currentStep].title }}</div>
+      <div class="step-desc" [innerHTML]="steps[currentStep].desc"></div>
+      
       <div class="step-indicators">
         <div class="step-dot" *ngFor="let step of steps; let i = index" [class.active]="i === currentStep"></div>
       </div>
-    </div>
-  </div>
-</ion-content>
+    </ion-content>
+
+    <ion-footer class="ion-padding">
+      <div style="display: flex; justify-content: space-between;">
+        <ion-button fill="outline" [disabled]="currentStep === 0" (click)="prevStep()">
+          ← Anterior
+        </ion-button>
+        <ion-button (click)="nextStep()">
+          {{ currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente →' }}
+        </ion-button>
+      </div>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
