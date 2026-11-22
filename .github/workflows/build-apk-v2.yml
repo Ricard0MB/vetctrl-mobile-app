@@ -25,7 +25,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-
+          cache: 'gradle'
 
       - name: Instalar dependencias
         run: npm install --legacy-peer-deps
@@ -35,6 +35,18 @@ jobs:
 
       - name: Sincronizar con Capacitor Android
         run: npx cap sync android
+
+      - name: Asegurar API Key de Google Maps en AndroidManifest.xml
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST" ] && ! grep -q "com.google.android.geo.API_KEY" "$MANIFEST"; then
+            python3 -c '
+          p = "android/app/src/main/AndroidManifest.xml"
+          s = open(p, encoding="utf-8").read()
+          tag = "    <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"TU_API_KEY_AQUI\" />\n</application>"
+          open(p, "w", encoding="utf-8").write(s.replace("</application>", tag, 1))
+          '
+          fi
 
       - name: Dar permisos a Gradle
         run: chmod +x android/gradlew
