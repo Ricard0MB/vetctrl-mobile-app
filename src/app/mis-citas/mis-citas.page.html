@@ -15,16 +15,30 @@
   </div>
 
   <ion-list *ngIf="!isLoading">
-    <ion-item *ngFor="let cita of citas">
+    <ion-item *ngFor="let cita of citas" class="ion-margin-bottom">
       <ion-icon name="calendar-outline" slot="start" color="primary" size="large"></ion-icon>
+      
       <ion-label>
         <h2><strong>{{ cita.pet_name }}</strong></h2>
         <p><ion-icon name="time-outline"></ion-icon> {{ cita.appointment_date }}</p>
         <p><ion-icon name="document-text-outline"></ion-icon> {{ cita.reason }}</p>
+        
         <ion-badge [color]="getBadgeColor(cita.status)" class="ion-margin-top">
           {{ cita.status }}
         </ion-badge>
+
+        <!-- 👇 BOTÓN DE PAGAR CON PRECIO DINÁMICO DESDE prices.php -->
+        <ion-button 
+          *ngIf="cita.status === 'PENDIENTE'" 
+          expand="block" 
+          color="success" 
+          class="ion-margin-top"
+          (click)="pagarCita(cita.id, precioConsulta)">
+          <ion-icon slot="start" name="card-outline"></ion-icon>
+          Pagar Cita ({{ precioConsulta | number:'1.2-2' }} USD)
+        </ion-button>
       </ion-label>
+
       <ion-button 
         *ngIf="cita.status === 'PENDIENTE'" 
         fill="clear" 

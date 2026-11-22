@@ -16,6 +16,11 @@
         <ion-icon name="stats-chart-outline"></ion-icon>
         <ion-label>Métricas</ion-label>
       </ion-segment-button>
+    <ion-segment-button value="precios">
+        <ion-icon name="pricetag-outline"></ion-icon>
+        <ion-label>Precios</ion-label>
+</ion-segment-button>
+
       <ion-segment-button value="bitacora">
         <ion-icon name="list-outline"></ion-icon>
         <ion-label>Bitácora</ion-label>
@@ -23,6 +28,7 @@
     </ion-segment>
   </div>
 
+  
   <div class="ion-padding">
     <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
       <ion-spinner name="crescent" color="dark"></ion-spinner>
@@ -73,6 +79,41 @@
           </ion-col>
         </ion-row>
       </ion-grid>
+    </div>
+
+    <!-- SECCIÓN: PRECIOS -->
+    <div *ngIf="!isLoading && segment === 'precios'">
+      <ion-card class="ion-no-margin">
+        <ion-card-header>
+          <ion-card-title>Tarifas de Servicios (USD)</ion-card-title>
+          <ion-card-subtitle>Estos montos se aplicarán en la pasarela de pago</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-list lines="full">
+            <ion-item *ngFor="let item of precios">
+              <ion-label position="stacked">{{ item.label }}</ion-label>
+              <ion-input 
+                type="number" 
+                step="0.01" 
+                min="0.50"
+                [(ngModel)]="item.price_usd" 
+                placeholder="0.00">
+              </ion-input>
+            </ion-item>
+          </ion-list>
+
+          <ion-button 
+            expand="block" 
+            color="dark" 
+            class="ion-margin-top" 
+            [disabled]="guardandoPrecios"
+            (click)="guardarPrecios()">
+            <ion-icon slot="start" name="save-outline"></ion-icon>
+            {{ guardandoPrecios ? 'Guardando...' : 'Guardar Tarifas' }}
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <!-- SECCIÓN: BITÁCORA -->

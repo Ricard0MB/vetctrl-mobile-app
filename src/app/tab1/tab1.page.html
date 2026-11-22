@@ -30,7 +30,6 @@
     <ion-grid class="ion-no-padding">
       <ion-row>
         <ion-col size="6" class="ion-padding-start ion-padding-end ion-padding-bottom">
-          <!-- 🔥 Se añade el atributo 'button' para que toda la tarjeta sea clickeable -->
           <ion-card button color="primary" class="stat-card" (click)="irA('/tabs/tab2')">
             <ion-icon name="paw-outline" size="large"></ion-icon>
             <h2>{{ totalMascotas }}</h2>
@@ -45,14 +44,30 @@
           </ion-card>
         </ion-col>
       </ion-row>
+      
       <ion-row>
-        <ion-col size="12" class="ion-padding-start ion-padding-end">
+        <ion-col size="12" class="ion-padding-start ion-padding-end ion-padding-bottom">
           <ion-card button color="warning" class="stat-card" (click)="irA('/alertas-vacunas')">
             <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
               <ion-icon name="warning-outline" size="large"></ion-icon>
               <div style="text-align: left;">
                 <h2 style="margin: 0;">{{ alertasVacunas }}</h2>
                 <p style="margin: 0;">Alertas de Vacunas</p>
+              </div>
+            </div>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+
+      <!-- 👇 NUEVA TARJETA DE PAGOS -->
+      <ion-row>
+        <ion-col size="12" class="ion-padding-start ion-padding-end">
+          <ion-card button color="success" class="stat-card" (click)="irA('/mis-citas')">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+              <ion-icon name="card-outline" size="large"></ion-icon>
+              <div style="text-align: left;">
+                <h2 style="margin: 0;">Pagar Servicios</h2>
+                <p style="margin: 0;">Cancela tus citas pendientes</p>
               </div>
             </div>
           </ion-card>
@@ -75,7 +90,14 @@
         <ion-icon name="list" slot="start" color="tertiary"></ion-icon>
         <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Ver Todas Mis Citas</ion-label>
       </ion-item>
-      <!-- 🔥 Botón de Admin -->
+      
+      <!-- 👇 NUEVO ACCESO RÁPIDO DE PAGO -->
+      <ion-item button routerLink="/mis-citas" class="quick-action" detail="true">
+        <ion-icon name="wallet" slot="start" color="success"></ion-icon>
+        <ion-label style="font-weight: 500; color: var(--ion-color-success);">Realizar un Pago</ion-label>
+      </ion-item>
+
+      <!-- Botón de Admin -->
       <ion-item button routerLink="/admin-panel" class="quick-action" detail="true" *ngIf="roleName === 'admin'">
         <ion-icon name="shield-checkmark" slot="start" color="danger"></ion-icon>
         <ion-label style="font-weight: 500; color: var(--ion-color-danger);">Panel de Administración</ion-label>
