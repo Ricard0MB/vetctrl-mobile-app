@@ -14,11 +14,15 @@ export class AuthService {
   constructor(private http: HttpClient) {
     const saved = localStorage.getItem('vetctrl_user');
     if (saved) {
-      this.currentUserSubject.next(JSON.parse(saved));
+      try {
+        this.currentUserSubject.next(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem('vetctrl_user');
+      }
     }
   }
 
-      updateProfile(data: any): Observable<any> {
+  updateProfile(data: any): Observable<any> {
     return this.http.put(`${this.apiBaseUrl}?resource=auth&action=profile`, data, {
       headers: this.getAuthHeaders()
     }).pipe(
