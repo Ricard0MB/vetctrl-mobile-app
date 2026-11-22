@@ -85,17 +85,4 @@
       <div class="step-indicators">
         <div class="step-dot" *ngFor="let step of steps; let i = index" [class.active]="i === currentStep"></div>
       </div>
-    </ion-content>
-
-    <ion-footer class="ion-padding">
-      <div style="display: flex; justify-content: space-between;">
-        <ion-button fill="outline" [disabled]="currentStep === 0" (click)="prevStep()">
-          ← Anterior
-        </ion-button>
-        <ion-button (click)="nextStep()">
-          {{ currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente →' }}
-        </ion-button>
-      </div>
-    </ion-footer>
-  </ng-template>
-</ion-modal>
+</ion-content>
